@@ -3,6 +3,7 @@ from requests.exceptions import RequestException
 from contextlib import closing
 from bs4 import BeautifulSoup
 import time
+import pickle
 
 YAHOO_FINANCE_URL = 'https://finance.yahoo.com/quote/{t}/sustainability?p={t}'
 WAIT_TIME_BTWN_REQS = 0.1  # seconds
@@ -28,6 +29,26 @@ def valid_html(resp):
             and content_type.find('html') > -1)
 
 
+def cacheify(cache):
+    try:
+        cache_data = pickle.load(open('{}.p'.format(cache), 'rb'))
+    except FileNotFoundError:
+        cache_data = {}
+
+    def cacheify_decorator(func):
+        def wrapper(arg):
+            if arg in cache_data.keys():
+                return cache_data[arg]
+            else:
+                ret_val = func(arg)
+                cache_data[arg] = ret_val
+                pickle.dump(cache_data, open('{}.p'.format(cache), 'wb'))
+                return ret_val
+        return wrapper
+    return cacheify_decorator
+
+
+@cacheify('esg_cache')
 def scrape_esg(ticker):
     esg = {'env': None, 'soc': None, 'gov': None}
     url = YAHOO_FINANCE_URL.format(t=ticker)
@@ -46,3 +67,5 @@ def scrape_esg(ticker):
 
 if __name__ == '__main__':
     print(scrape_esg('FB'))
+    print(scrape_esg('FB'))
+    print(scrape_esg('AAPL'))
