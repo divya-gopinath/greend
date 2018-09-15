@@ -36,12 +36,12 @@ def cacheify(cache):
         cache_data = {}
 
     def cacheify_decorator(func):
-        def wrapper(arg):
-            if arg in cache_data.keys():
-                return cache_data[arg]
+        def wrapper(*arg):
+            if tuple(arg) in cache_data.keys():
+                return cache_data[tuple(arg)]
             else:
-                ret_val = func(arg)
-                cache_data[arg] = ret_val
+                ret_val = func(*arg)
+                cache_data[tuple(arg)] = ret_val
                 pickle.dump(cache_data, open('{}.p'.format(cache), 'wb'))
                 return ret_val
         return wrapper
