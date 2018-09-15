@@ -1,6 +1,5 @@
-import numpy as np
 import plaid
-from config import PLAID_CLIENT
+from config import PLAID_CLIENT, TRANSACTION_WINDOW
 from flask import Flask, render_template, request, send_file, make_response, send_from_directory, jsonify
 import datetime
 
@@ -17,6 +16,7 @@ class Greend(object):
 
 		self.access_token = None
 		self.public_token = None
+		self.transaction_data = None
 		self.client = plaid.Client(PLAID_CLIENT['PLAID_CLIENT_ID'],
                       PLAID_CLIENT['PLAID_SECRET'],
                       PLAID_CLIENT['PLAID_PUBLIC_KEY'],
@@ -51,11 +51,12 @@ class Greend(object):
 
 	def transactions(self):
 	  # Pull transactions for the last 30 days
-	  start_date = "{:%Y-%m-%d}".format(datetime.datetime.now() + datetime.timedelta(-30))
+	  start_date = "{:%Y-%m-%d}".format(datetime.datetime.now() + datetime.timedelta(TRANSACTION_WINDOW))
 	  end_date = "{:%Y-%m-%d}".format(datetime.datetime.now())
 
 	  try:
 	    response = self.client.Transactions.get(self.access_token, start_date, end_date)
+	    self.transaction_data = response
 	    return jsonify(response)
 	  except plaid.errors.PlaidError as e:
 	    return jsonify({'error': {'error_code': e.code, 'error_message': str(e)}})
