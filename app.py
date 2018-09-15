@@ -2,6 +2,7 @@ import plaid
 from config import PLAID_CLIENT, TRANSACTION_WINDOW
 from flask import Flask, render_template, request, send_file, make_response, send_from_directory, jsonify
 import datetime
+import requests
 
 class Greend(object):
 	app = None
@@ -67,6 +68,22 @@ class Greend(object):
 	  response = self.client.Item.public_token.create(self.access_token)
 	  return jsonify(response)
 
+def get_ticker(equity):
+    response = requests.get('https://www.kensho.com/external/v1/search_entities?class_name=Equity&search_string=' + equity, headers={'Authorization': 'Token 75cabbcbb13902d342ab56354f2f24830b4ca92b'}).json()
+    
+    results = response["data"]
+    
+    # If no matches, return None.
+    if len(results) == 0:
+        return None
+        
+    # Assume first result is the best one.
+    best_result = results[0]
+    
+    # If there is a ticker name, return it.
+    if "ticker_name" in best_result:
+        return best_result["ticker_name"]
+    return None
 		
 if __name__ == '__main__':
     Greend().run()
