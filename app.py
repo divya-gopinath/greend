@@ -73,7 +73,14 @@ class Greend(object):
 		# called when self.transaction_data has data to work with; want to iterate
 		# and call get_ticker for each one
 		#print(self.transaction_data['transactions'])
-		pass
+		transactions = []
+		desired_properties = ['name', 'amount']
+		for transaction in self.transaction_data['transactions']:
+		    tr = {}
+		    for property in desired_properties:
+		        tr[property] = transaction[property]
+		    transactions.append(tr)
+		return transactions
 
 	def get_ticker_kensho(self, equity):
 		response = requests.get( KENSHO_GRAPH_API['ENDPOINT'] + equity, headers={'Authorization': KENSHO_GRAPH_API['TOKEN']}).json()
