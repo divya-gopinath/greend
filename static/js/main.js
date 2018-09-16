@@ -1,6 +1,8 @@
+var handler;
+
 // A $( document ).ready() block.
 $( document ).ready(function() {
-	var handler = Plaid.create({
+	handler = Plaid.create({
             apiVersion: 'v2',
             clientName: 'Plaid Walkthrough Demo',
             env: PLAID_ENVIRONMENT,
@@ -15,7 +17,6 @@ $( document ).ready(function() {
                 });
             },
         });
-    handler.open();
 
     $('#get-transactions-btn').on('click', function(e) {
       $.post('/transactions', function(data) {
@@ -54,5 +55,21 @@ $( document ).ready(function() {
           });
         }
       });
+	});
+
+	$('#signin').modal({backdrop: 'static', keyboard: false})
+	$( "#signin-btn" ).click( function() { signIn(); });
+	$('#signin').modal('show');
 });
-});
+
+var signIn = function() { 
+	//handler.open();
+	username = $( "#userName" ).val();
+	if (username != "") { 
+		$("#user").html("Welcome, " + "<strong>" + username + "</strong>");
+		$('#signin').modal('hide');
+		var ctx = $("#canvas");
+		var myChart = new Chart(ctx, config);
+	};
+
+};
