@@ -3,6 +3,8 @@ from config import *
 from flask import Flask, render_template, request, send_file, make_response, send_from_directory, jsonify
 import datetime
 import requests
+from ticker_query import *
+from markov_filter import *
 
 
 class Greend(object):
@@ -79,8 +81,16 @@ class Greend(object):
 		    tr = {}
 		    for property in desired_properties:
 		        tr[property] = transaction[property]
+		    if 'name' in desired_properties:
+		        ticker_kensho = get_ticker_kensho(clean(tr['name']))
+		        if ticker_kensho is not None:
+		            tr['name'] = ticker_kensho
+		        else:
+		            tr['name'] = get_ticker_yahoo(clean(tr['name']))
 		    transactions.append(tr)
+		print(transactions)
 		return transactions
+		
 
 	def get_ticker_kensho(self, equity):
 		response = requests.get( KENSHO_GRAPH_API['ENDPOINT'] + equity, headers={'Authorization': KENSHO_GRAPH_API['TOKEN']}).json()

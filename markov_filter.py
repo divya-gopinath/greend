@@ -1,7 +1,7 @@
 import string
 import numpy as np
 
-MARKOV_THRESHOLD = -0.2
+MARKOV_THRESHOLD = -0.005
 
 BIGRAM_COUNTS_CORPUS = [
     ["th", 100272945963],
@@ -1266,9 +1266,26 @@ def pred_hash(s, verbose=False):
     if verbose:
         print(get_log_likelihood(s) + np.log(ALPHABET_LENGTH))
     return get_log_likelihood(s) + np.log(ALPHABET_LENGTH) > MARKOV_THRESHOLD
+    
+def clean(name, verbose=False):
+    cleaned = ""
+    for word in name.split():
+        if pred_hash(word):
+            if cleaned == "":
+                cleaned = word
+            else:
+                cleaned = cleaned + ' ' + word
+    if verbose:
+        print(cleaned)
+    return cleaned
 
 
 if __name__ == '__main__':
     pred_hash('asdasdsadq324q', True)
     pred_hash("McDonald's", True)
     pred_hash("oq37e89's", True)
+    pred_hash("SF**POOL**", True)
+    clean("Uber 072515 SF**POOL**", True)
+    clean("ACH Electronic CreditGUSTO PAY 123456", True)
+    clean("Tectra Inc", True)
+    
